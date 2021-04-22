@@ -1,0 +1,40 @@
+#plotDiv {
+    width: 600px;
+    height: 600px;
+}
+
+.concs{
+fill: blue;
+fill-opacity: 0.5;
+stroke: #777;
+stroke-width: 0.5px;
+stroke-opacity: 1.0;
+}
+
+.hoverConc{
+fill: red;
+fill-opacity: 1.0;
+stroke: #777;
+stroke-width: 0.5px;
+stroke-opacity: 1.0;
+}
+
+#province{
+fill: none;
+stroke: black;
+stroke-width: 1px;
+}
+
+#losCed{
+fill: none;
+stroke: purple;
+stroke-width: 2px
+}
+
+#allProvPoly{
+fill: none;
+stroke: black;
+stroke-width: 2px
+}
+
+

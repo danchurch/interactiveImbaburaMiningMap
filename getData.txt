@@ -1,0 +1,81 @@
+## we need to get our data down to size. How about just the concessions in Imbabura?
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt; plt.ion()
+import geopandas as gpd
+import rasterio
+import rasterio.plot
+import shapely
+import fiona
+
+## GIS data
+
+allProvPoly = gpd.read_file("/home/daniel/Documents/"
+                             "LosCed/Ecuador_GIS/limites_administrativas"
+                             "/nxprovincias.shp")
+allConcs = gpd.read_file("/home/daniel/Documents/LosCed/Ecuador_GIS"
+                         "/concesiones/concesiones_21.06.2018"
+                         "/CMN_2018_06_21_WGS84.shp")
+losCedPoly = gpd.read_file("/home/daniel/Documents/LosCed/Ecuador_GIS"
+                           "/losced/loscedpoly/loscedpoly.shp")
+
+
+## we need just imbabura...
+
+imbFilt = allProvPoly.DPA_DESPRO == "IMBABURA"
+imbGDF = allProvPoly[imbFilt]
+imbConcFilt = allConcs.intersects(imbGDF.iloc[0]['geometry'])
+imbConcs = allConcs[imbConcFilt]
+
+plt.close('all')
+fig, ax = plt.subplots()
+imbGDF.boundary.plot(ax=ax, color="black")
+losCedPoly.boundary.plot(ax=ax, color="orange")
+imbConcs.plot(ax=ax)
+
+
+######
+
+## get out of python, use npm to make a topojson out of this.
+#sudo npm install topojson-server
+
+fiona.supported_drivers
+
+## wait fiona has a driver for making topojsons...does it work?
+## no, can only read them...
+
+## I think this all works better if we go to lat/long:
+imbConcs.to_crs("EPSG:4326", inplace=True)
+
+imbConcs.to_file("imbConcs.geojson", driver="GeoJSON")
+
+## yeah, so back to command line/topojson tools:
+
+geo2topo="/usr/local/lib/node_modules/topojson/node_modules/topojson-server/bin/geo2topo"
+
+$geo2topo imbConcs.geojson -o  imbConcs.topoJSON
+
+## so we have a topojson... can we look at it? 
+## works. have to remember that lat long is best.
+
+## make some more local copies to play with for map:
+
+
+imbGDF.to_crs("EPSG:4326", inplace=True)
+imbGDF.to_file("imbOnly.geojson", driver="GeoJSON")
+
+allProvPoly.to_crs("EPSG:4326", inplace=True)
+allProvPoly.to_file("allProvPoly.geojson", driver="GeoJSON")
+
+losCedPoly.to_crs("EPSG:4326", inplace=True)
+losCedPoly.to_file("losCedPoly.geojson", driver="GeoJSON")
+
+## back to bash
+
+$geo2topo allProvPoly.geojson -o  allProvPoly.topoJSON
+$geo2topo losCedPoly.geojson -o  losCedPoly.topoJSON
+
+$geo2topo imbOnly.geojson -o  imbOnly.topoJSON
+
+
